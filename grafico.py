@@ -43,7 +43,7 @@ col4.metric("🔻 Economia na Energia", f"{percentual}%", f"-R$ {economia:.2f}")
 st.markdown("---")
 
 # ======================= #
-# 📈 Gráfico de Barras
+# 📈 Gráfico de Barras Horizontais
 df = pd.DataFrame({
     'Cenário': ['Mercado Cativo', 'Mercado Livre'],
     'Custo Energia (R$)': [cativo, livre]
@@ -51,12 +51,13 @@ df = pd.DataFrame({
 
 fig = px.bar(
     df,
-    x='Cenário',
-    y='Custo Energia (R$)',
+    x='Custo Energia (R$)',
+    y='Cenário',
+    orientation='h',
     color='Cenário',
     color_discrete_map={'Mercado Cativo': 'crimson', 'Mercado Livre': 'limegreen'},
-    text_auto=True,
-    title="Comparativo de Custo da Energia Ativa"
+    text='Custo Energia (R$)',
+    title="Comparativo de Custo da Energia Ativa (Barras Horizontais)"
 )
 
 fig.update_layout(
@@ -65,7 +66,14 @@ fig.update_layout(
     font_color='black'
 )
 
+fig.update_traces(
+    texttemplate='R$ %{x:.2f}',
+    textposition='outside'
+)
+
 st.plotly_chart(fig, use_container_width=True)
+
+st.markdown("---")
 
 # ======================= #
 # 📑 Tabela Comparativa
