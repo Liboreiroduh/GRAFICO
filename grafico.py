@@ -1,135 +1,103 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+import plotly.express as px
 
-# 🎨 Custom CSS para fundo verde e estilização
+# ======================= #
+# 🎨 Layout e Configuração
+st.set_page_config(page_title="Dashboard Ouro Plastic", layout="wide")
+
 st.markdown(
     """
     <style>
-        .main {
-            background-color: #007A33;
-        }
-        .block-container {
-            padding: 2rem 2rem 2rem 2rem;
-        }
-        div[data-testid="stHeader"] {
-            background-color: rgba(0,0,0,0);
-        }
-        div[data-testid="stSidebar"] {
-            background-color: #005F27;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            color: white;
-        }
-        .stMarkdown p {
-            color: white;
-        }
+        .main {background-color: #007A33;}
+        div.block-container {padding: 1rem 2rem;}
+        h1, h2, h3, h4, h5, h6 {color: white;}
+        .stMarkdown p {color: white;}
     </style>
-    """,
-    unsafe_allow_html=True
+    """, unsafe_allow_html=True
 )
 
-# 🎯 Título e introdução
-st.title("🚀 Relatório de Migração - Ouro Plastic")
-st.subheader("Foco: Energia Pura - Desconto Aplicado no Mercado Livre")
-
-st.markdown("""
-O Mercado Livre de Energia permite que empresas negociem diretamente seu fornecimento de energia, 
-buscando **redução de custos, previsibilidade e sustentabilidade.**
-
-Este relatório demonstra como a **Ouro Plastic obteve uma economia real de 12,41% sobre a energia ativa** 
-ao migrar para o mercado livre de energia com a **Inti Energia**.
-""")
+# ======================= #
+# 🔝 Header
+st.title("🚀 Dashboard de Migração - Ouro Plastic")
+st.subheader("Análise da Energia Ativa no Mercado Livre")
 
 st.markdown("---")
 
-# 🔢 Dados principais
-st.header("📊 Dados e Comparativos")
+# ======================= #
+# 📊 Dados principais
+cativo = 1906.46
+livre = 1669.50
+economia = cativo - livre
+percentual = round((economia / cativo) * 100, 2)
 
-# Tabela comparativa
-data = {
+# ======================= #
+# 🔥 KPIs
+col1, col2, col3, col4 = st.columns(4)
+
+col1.metric("⚡ Energia Contratada", "5,3 MWh/mês")
+col2.metric("💰 Preço Cativo", "R$ 359,52/MWh")
+col3.metric("🏷️ Preço Livre", "R$ 315,00/MWh")
+col4.metric("🔻 Economia na Energia", f"{percentual}%", f"-R$ {economia:.2f}")
+
+st.markdown("---")
+
+# ======================= #
+# 📈 Gráfico de Barras
+df = pd.DataFrame({
     'Cenário': ['Mercado Cativo', 'Mercado Livre'],
-    'Custo Energia (R$)': [1906.46, 1669.50]
-}
-df = pd.DataFrame(data)
+    'Custo Energia (R$)': [cativo, livre]
+})
 
-st.subheader("✅ Comparativo de Custo da Energia Ativa (5,3 MWh)")
-st.table(df)
+fig = px.bar(
+    df,
+    x='Cenário',
+    y='Custo Energia (R$)',
+    color='Cenário',
+    color_discrete_map={'Mercado Cativo': 'crimson', 'Mercado Livre': 'limegreen'},
+    text_auto=True,
+    title="Comparativo de Custo da Energia Ativa"
+)
 
-# 🔥 Gráfico de barras
-st.subheader("🔍 Comparativo Visual dos Custos")
-fig, ax = plt.subplots(figsize=(6,4))
-sns.barplot(x='Cenário', y='Custo Energia (R$)', data=df, palette=['#B22222', '#32CD32'], ax=ax)
-ax.bar_label(ax.containers[0], fmt='R$ %.2f', label_type='edge', fontsize=9)
-ax.set_ylabel('Custo (R$)')
-ax.set_title('Custo da Energia Ativa: Antes e Depois')
-st.pyplot(fig)
+fig.update_layout(
+    plot_bgcolor='rgba(0,0,0,0)',
+    paper_bgcolor='rgba(255,255,255,1)',
+    font_color='black'
+)
 
-# 🔥 Economia destacada
-economia = 1906.46 - 1669.50
-st.subheader("💰 Economia Mensal na Energia Ativa")
-st.success(f"Economia Mensal: **R$ {economia:.2f} → Desconto de 12,41% na Energia Ativa (kWh)**")
+st.plotly_chart(fig, use_container_width=True)
 
-st.markdown("---")
-
-# 🚀 Cards resumidos
-st.header("🧠 Resumo do Contrato")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.metric(label="Energia Contratada", value="5,3 MWh/mês")
-    st.metric(label="Preço Mercado Cativo", value="R$ 359,52/MWh")
-with col2:
-    st.metric(label="Preço Mercado Livre", value="R$ 315,00/MWh")
-    st.metric(label="Desconto sobre Energia", value="12,41%")
+# ======================= #
+# 📑 Tabela Comparativa
+st.subheader("📄 Tabela Comparativa de Custos")
+st.dataframe(df.set_index('Cenário'))
 
 st.markdown("---")
 
-# 🏛️ Storytelling e contexto
-st.header("📖 Entendendo a Migração")
-
-st.markdown("""
-### 🏢 **Antes - Mercado Cativo**
-- Pagava a energia ativa a **R$ 359,52/MWh**.
-- Custo mensal da energia ativa: **R$ 1.906,46**.
-
-### ⚡ **Depois - Mercado Livre**
-- Energia contratada com preço fixo de **R$ 315,00/MWh**.
-- Custo mensal da energia ativa: **R$ 1.669,50**.
-
-### ✔️ **Desconto aplicado na energia ativa:** **12,41%**
-
-Essa migração garante:
-- 🔋 Menor custo na energia.
-- 🌿 Energia incentivada (fonte limpa).
-- 🚫 Proteção contra bandeiras tarifárias.
-- 📅 Previsibilidade no preço até 2030.
+# ======================= #
+# ✔️ Benefícios
+st.subheader("✔️ Benefícios da Migração")
+st.info("""
+- Economia direta de **12,41% sobre energia ativa (kWh)**.
+- Preço fixo até 2030, sem bandeiras tarifárias.
+- Energia limpa e incentivada (50% desconto na TUSD fio B).
+- Previsibilidade financeira e segurança contratual.
 """)
 
-st.markdown("---")
-
-# ⚖️ Riscos e obrigações
-st.header("⚠️ Riscos e Condições")
-
-st.markdown("""
-### ❌ **Inadimplência**
-- Desconexão da CCEE até regularização.
-- Retorno ao mercado cativo **só após quitação total** e aviso prévio de **5 anos** (Resolução ANEEL nº 1.000/2021).
-
-### 🛡️ **Segurança Contratual**
-- A Inti Energia oferece **coobrigação sobre os recebíveis**, assegurando proteção na operação no mercado livre.
+# ======================= #
+# ⚠️ Riscos e Obrigações
+st.subheader("⚠️ Riscos e Condições")
+st.warning("""
+- Inadimplência → Suspensão na CCEE.
+- Retorno ao mercado cativo → Somente após quitar débitos e com aviso prévio de 5 anos (Resolução 1000/2021).
 """)
 
-st.markdown("---")
-
+# ======================= #
 # ✅ Conclusão
-st.header("✅ Conclusão Final")
-
-st.markdown("""
-A migração da Ouro Plastic para o Mercado Livre proporcionou uma **economia direta de 12,41% sobre a energia ativa (kWh)**, 
-além de garantir previsibilidade financeira, sustentabilidade e alinhamento com as práticas ESG.
+st.subheader("✅ Conclusão")
+st.success("""
+A migração da Ouro Plastic trouxe uma economia direta sobre energia ativa, 
+mantendo previsibilidade e alinhamento com energia sustentável.
 
 **Inti Energia - Energia inteligente, limpa e acessível.**
 """)
